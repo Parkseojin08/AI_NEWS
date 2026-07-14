@@ -195,9 +195,9 @@ tags:
 
 ### 산출물
 - `client/` Vite + React 스캐폴드
-- `src/api/client.js` — `VITE_API_BASE_URL` 기반 fetch 래퍼
-- `src/components/ArticleCard.jsx`, `FilterBar.jsx`, `StatusBar.jsx`
-- `src/hooks/useArticles.js` — 목록 fetch + 페이지네이션 + 읽음 처리
+- `src/api/client.ts` — `VITE_API_BASE_URL` 기반 fetch 래퍼
+- `src/components/ArticleCard.tsx`, `FilterBar.tsx`, `StatusBar.tsx`
+- `src/hooks/useArticles.ts` — 목록 fetch + 페이지네이션 + 읽음 처리
 - **`docs/HANDOFF.md` 갱신** — 세션 B 인수인계
 
 ### 완료 기준

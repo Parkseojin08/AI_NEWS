@@ -85,7 +85,7 @@ curl -X POST localhost:3000/api/collect -H "X-Cron-Secret: $CRON_SECRET"
 ## 6. 미해결 이슈 · 함정
 
 1. **로컬 .env 부재** — 실행 검증 보류의 근본 원인. Neon/CRON 시크릿을 `server/.env`에 준비해야 검증 가능. `.env`는 커밋 금지.
-2. **client 폴더 중복** — `client/`에 TypeScript 스캐폴드(tsconfig, vite.config.ts)가 있고, 그 안에 중첩된 `client/client/`에 JSX 스캐폴드(vite.config.js)가 별도로 존재한다. **Phase 5 착수 전 어느 쪽을 쓸지 정하고 하나를 제거**해야 한다. 설계서 §2는 `client/src/*.jsx`(JSX) 기준.
+2. **client 폴더 중복 — 해결됨(2026-07-15)**. 중첩 `client/client/`(JSX)를 제거하고 최상위 `client/`(TypeScript) 하나로 통일. 스택은 TS로 확정(사용자 승인). 설계서 §0 구현 편차·§2 트리·PHASES Phase 5·frontend-agent 명세를 `.tsx`/`.ts` 기준으로 갱신 완료. 최상위 `client/`는 아직 Vite 기본 예제 스캐폴드 상태이며 Phase 5에서 실제 UI로 교체한다.
 3. **Olshansk Anthropic 피드 의존** — anthropic 소스는 서드파티 미러 피드(`raw.githubusercontent.com/Olshansk/rss-feeds`)에 의존. 중단 시 설계서 §12 Plan B(직접 스크래핑)로 rss.js 교체 필요.
 4. **요약 미구현** — `collector.js`의 반환은 `summarized: 0` 고정. Phase 3에서 `summary IS NULL` 대상 요약 단계를 runCollect()에 통합해야 한다 (설계서 §6.2 하단 플로우).
 
