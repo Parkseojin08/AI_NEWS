@@ -14,6 +14,7 @@ function App() {
     unreadCount,
     hasMore,
     loading,
+    slowLoading,
     error,
     setSource,
     setUnread,
@@ -46,6 +47,14 @@ function App() {
         onSourceChange={setSource}
         onUnreadChange={setUnread}
       />
+
+      {/* 콜드 스타트 안내: 로딩이 15초를 넘기면 노출 (Render 스핀다운 웜업 대기) */}
+      {loading && slowLoading && (
+        <div className="app__waking" role="status" aria-live="polite">
+          <span className="app__waking-spinner" aria-hidden="true" />
+          서버 깨우는 중 (최대 1분)
+        </div>
+      )}
 
       {error && (
         <div className="app__error">

@@ -3,6 +3,8 @@ import { getArticles, markRead } from '../api/client';
 import type { Article, Source } from '../api/client';
 
 const PAGE_SIZE = 20;
+// 콜드 스타트 안내 임계값: 로딩이 이 시간을 넘기면 "서버 깨우는 중" 안내를 띄운다.
+const SLOW_LOADING_MS = 15000;
 
 export interface UseArticlesResult {
   articles: Article[];
@@ -13,6 +15,7 @@ export interface UseArticlesResult {
   totalPages: number;
   hasMore: boolean;
   loading: boolean;
+  slowLoading: boolean;
   error: string | null;
   setSource: (source: Source | 'all') => void;
   setUnread: (unread: boolean) => void;
@@ -29,6 +32,7 @@ export function useArticles(): UseArticlesResult {
   const [totalPages, setTotalPages] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [slowLoading, setSlowLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // 최신 요청만 반영하기 위한 토큰 (필터 빠른 전환 시 경쟁 방지)
@@ -39,6 +43,12 @@ export function useArticles(): UseArticlesResult {
       const myId = ++requestId.current;
       setLoading(true);
       setError(null);
+      // 새 로딩 시작마다 안내를 초기화하고, 15초 타이머를 건다.
+      // 타이머 콜백은 자신이 아직 최신 요청일 때만 안내를 켠다.
+      setSlowLoading(false);
+      const slowTimer = setTimeout(() => {
+        if (myId === requestId.current) setSlowLoading(true);
+      }, SLOW_LOADING_MS);
       try {
         const res = await getArticles({
           source: currentSource === 'all' ? undefined : currentSource,
@@ -57,7 +67,12 @@ export function useArticles(): UseArticlesResult {
         if (myId !== requestId.current) return;
         setError(e instanceof Error ? e.message : '목록을 불러오지 못했습니다');
       } finally {
-        if (myId === requestId.current) setLoading(false);
+        // 로딩 종료(성공/에러 무관): 타이머 해제 + 안내 종료.
+        clearTimeout(slowTimer);
+        if (myId === requestId.current) {
+          setLoading(false);
+          setSlowLoading(false);
+        }
       }
     },
     [],
@@ -119,6 +134,7 @@ export function useArticles(): UseArticlesResult {
     totalPages,
     hasMore,
     loading,
+    slowLoading,
     error,
     setSource,
     setUnread,

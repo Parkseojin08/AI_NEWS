@@ -22,7 +22,10 @@
 | 2 RSS 수집 (요약 제외) | 완료·**실검증** (커밋 `848f74d`) | 적재/멱등/401/정규화 실측 |
 | 3 Gemini 요약 | 완료·부분검증 (커밋 `b63dfdf`) | 실패격리 실측(더미키→NULL 유지). 실키 요약 성공은 미검증 |
 | 4 조회 API | 완료·**실검증** (커밋 `ac548d9`) | 4개 엔드포인트 실응답 = `docs/API_ACTUAL.md` |
-| 5 프론트 기능 (TS) | 완료·**실검증** (이번 커밋) | 로컬 백엔드+실 DB 브라우저 종단: 렌더/필터/읽음(PATCH 200)/더보기(20→40) |
+| 5 프론트 기능 (TS) | 완료·**실검증** (커밋 `2c6980a`) | 로컬 백엔드+실 DB 브라우저 종단: 렌더/필터/읽음(PATCH 200)/더보기(20→40) |
+| 6 프론트 마감 (TS) | 완료·**실검증** (이번 커밋) | 다크(#16171d)/반응형 2열↔1열/15초 콜드스타트 안내(3s 없음·16s "서버 깨우는 중") |
+
+> **배포 현황(2026-07-16)**: 백엔드는 Render 프로덕션에서 실 요약 포함 정상(`/api/articles` 200, CORS=Vercel OK). GEMINI_MODEL은 **`gemini-flash-latest`** 사용(2.5-flash는 신규키 차단). **Vercel 프론트는 `404: NOT_FOUND`** — 리포에 루트 `vercel.json` 추가했으나 여전히 404 → Vercel 프로젝트가 이 레포에서 실제 배포 안 되는 상태. **대시보드 조치 필요**: Git 연결/Production Branch=main, Root Directory=`client`, env `VITE_API_BASE_URL=https://ai-news-03ub.onrender.com`, Redeploy. (Phase 7 devops)
 
 > **보안 사건(2026-07-16)**: 사용자가 실제 `CRON_SECRET`/`GEMINI_API_KEY`를 git 추적 파일 `server/.env.example`에 입력함. 커밋 전 발견해 `.env.example`을 플레이스홀더로 되돌림(시크릿 미커밋). **시크릿은 반드시 `server/.env`(gitignore됨)에 `KEY=값` 형식(= 앞뒤 공백 없이)으로 넣어야 함.** 노출됐던 키는 로테이션 권장. 사용자가 선택한 모델: `GEMINI_MODEL=gemini-2.5-flash`.
 

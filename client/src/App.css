@@ -1,10 +1,10 @@
-/* Phase 5: 기능 우선의 최소 레이아웃.
-   다크테마 완성 / 반응형 2열 / 콜드스타트 안내는 Phase 6에서 마감. */
+/* Phase 6: 다크 테마 마감 + 반응형(모바일 1열 / 데스크톱 2열) + 콜드 스타트 안내. */
 
 .app {
   text-align: left;
   padding: 16px;
   box-sizing: border-box;
+  width: 100%;
 }
 
 .app__header {
@@ -12,12 +12,18 @@
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: 8px 16px;
 }
 
 .app__title {
   font-size: 28px;
   margin: 8px 0;
+}
+
+@media (max-width: 480px) {
+  .app__title {
+    font-size: 24px;
+  }
 }
 
 /* StatusBar */
@@ -39,12 +45,14 @@
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
+  background: var(--surface);
+  color: var(--text);
 }
 
 .status-chip--error {
-  color: #b91c1c;
-  border-color: #b91c1c;
-  background: rgba(185, 28, 28, 0.08);
+  color: var(--danger);
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
 }
 
 /* FilterBar */
@@ -97,11 +105,18 @@
   color: var(--text-h);
 }
 
-/* 카드 목록 (Phase 6에서 데스크톱 2열 그리드로 확장) */
+/* 카드 목록: 모바일 1열 / 데스크톱 2열 그리드 */
 .app__list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .app__list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .card {
@@ -110,11 +125,20 @@
   border-radius: 8px;
   padding: 14px 16px;
   cursor: pointer;
-  background: var(--bg);
+  background: var(--surface);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .card:hover {
   border-color: var(--accent-border);
+  background: var(--surface-hover);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
 }
 
 /* 안읽음: 좌측 보더 강조 */
@@ -178,15 +202,52 @@
   color: var(--text);
 }
 
+/* 콜드 스타트 안내 배너 (로딩 15초 초과 시) */
+.app__waking {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  font-size: 14px;
+}
+
+.app__waking-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--accent-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: app-spin 0.8s linear infinite;
+}
+
+@keyframes app-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app__waking-spinner {
+    animation: none;
+  }
+}
+
 /* 상태 표시 */
 .app__error {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border: 1px solid #b91c1c;
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
-  color: #b91c1c;
+  color: var(--danger);
+  background: var(--danger-bg);
   margin: 12px 0;
 }
 

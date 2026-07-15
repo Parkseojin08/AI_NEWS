@@ -309,6 +309,6 @@ tags:
 - [x] Phase 5 (실검증 완료 — 브라우저 종단: 렌더/필터/읽음/더보기)
 
 **세션 C**
-- [ ] Phase 6
-- [ ] Phase 7
+- [x] Phase 6 (실검증 완료 — 다크/2열↔1열 반응형/15초 콜드스타트 안내)
+- [ ] Phase 7 (부분: Render 배포·CORS OK / GitHub Actions 미구성 / Vercel 프론트 배포 미완)
 - [ ] Phase 8
