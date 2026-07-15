@@ -5,6 +5,8 @@ const cors = require('cors');
 const config = require('./config');
 const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
 const collectRouter = require('./routes/collect');
+const articlesRouter = require('./routes/articles');
+const statusRouter = require('./routes/status');
 
 const app = express();
 
@@ -20,7 +22,8 @@ app.get('/health', (req, res) => {
 
 // API 라우터 (반드시 404 핸들러보다 앞)
 app.use('/api', collectRouter);
-// TODO(Phase 4): /api/articles, /api/status 라우터 등록
+app.use('/api', articlesRouter);
+app.use('/api', statusRouter);
 
 // 404 → 공통 에러 핸들러 순으로 등록 (반드시 라우트 뒤)
 app.use(notFoundHandler);

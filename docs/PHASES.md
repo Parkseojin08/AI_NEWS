@@ -300,12 +300,12 @@ tags:
 
 **세션 A**
 - [x] Phase 0
-- [ ] Phase 1
-- [ ] Phase 2
+- [x] Phase 1 (실검증 완료)
+- [x] Phase 2 (실검증 완료)
 
 **세션 B**
-- [ ] Phase 3
-- [ ] Phase 4
+- [x] Phase 3 (부분검증 — 실패격리 실측, 실키 요약 미검증)
+- [x] Phase 4 (실검증 완료, API_ACTUAL.md)
 - [ ] Phase 5
 
 **세션 C**

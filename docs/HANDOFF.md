@@ -2,21 +2,26 @@
 프로젝트: AI News Hub
 유형: 세션 인수인계
 작성일: 2026-07-15
-세션: A (Phase 0~2)
+수정일: 2026-07-16
+세션: A (Phase 0~2) → 연장 진행 (Phase 3~4 포함)
 ---
 
-# HANDOFF — 세션 A (Phase 0~2)
+# HANDOFF — Phase 0~4
 
-> 다음 세션(B, Phase 3~5)은 이 문서와 `docs/PHASES.md`, `docs/기술설계_및_제작순서.md`(SSOT)를 먼저 읽고 시작한다.
+> 다음 세션은 이 문서와 `docs/PHASES.md`, `docs/API_ACTUAL.md`, `docs/기술설계_및_제작순서.md`(SSOT)를 먼저 읽고 시작한다.
 > **시크릿 값은 이 문서 어디에도 없다. 앞으로도 기록 금지.**
+
+> **경계 메모**: 원래 세션 A는 Phase 2에서 STOP이었으나, 사용자 지시로 같은 세션에서 Phase 3~4까지 진행. 이후 사용자가 `data.txt`(gitignore됨)로 실제 `DATABASE_URL`을 제공해 **Phase 1~4를 실제 Neon DB로 실행 검증 완료**함.
 
 ## 1. 완료한 Phase
 
 | Phase | 상태 | 비고 |
 | --- | --- | --- |
 | 0 스캐폴드 | 완료 | 메인 세션 |
-| 1 서버 기반 (config/db/errorHandler) | 완료 (커밋 `1d008a3`) | backend-agent |
-| 2 RSS 수집 (요약 제외) | 코드 작성 완료 / 실행 검증 보류 | backend-agent |
+| 1 서버 기반 (config/db/errorHandler) | 완료·**실검증** (커밋 `1d008a3`) | SELECT 1 + 스키마 대조 OK |
+| 2 RSS 수집 (요약 제외) | 완료·**실검증** (커밋 `848f74d`) | 적재/멱등/401/정규화 실측 |
+| 3 Gemini 요약 | 완료·부분검증 (커밋 `b63dfdf`) | 실패격리 실측(더미키→NULL 유지). 실키 요약 성공은 미검증 |
+| 4 조회 API | 완료·**실검증** (이번 커밋) | 4개 엔드포인트 실응답 = `docs/API_ACTUAL.md` |
 
 ## 2. 생성/수정한 파일 (Phase 2)
 
@@ -33,11 +38,26 @@
 **Phase 1 기존 재사용 모듈 (수정 없음)**
 - `server/src/config.js`, `server/src/db.js`, `server/src/middlewares/errorHandler.js`, `server/migrations/001_init.sql`, `server/.env.example`
 
-## 3. 실행 검증이 보류된 이유
+## 3. 실제 검증 결과 (2026-07-16, 로컬 서버 + 실제 Neon DB)
 
-- 로컬 `server/.env`에 시크릿(DATABASE_URL, CRON_SECRET 등)이 없어 서버 기동 및 `POST /api/collect` 실제 호출을 수행할 수 없다. `config.js`는 필수 env 누락 시 `process.exit(1)`로 즉시 종료된다.
-- 메인 세션과 사용자 합의에 따라 **이번 세션은 코드 작성 + `node --check` 문법 점검까지만** 수행했다.
-- `node --check` 결과: `rss.js`, `collector.js`, `cronAuth.js`, `collect.js`, `index.js` 전부 통과.
+`data.txt`의 실제 `DATABASE_URL`로 로컬 서버를 구동해 검증 완료. (CRON_SECRET/GEMINI는 로컬 더미값, env는 인라인 주입 — 파일 미기록.)
+
+- **DB 연결/스키마**: `SELECT 1` OK. `articles`(9컬럼)/`collect_log`(6컬럼)/인덱스 3종이 `001_init.sql`과 정확히 일치.
+- **수집/적재**: 최초 collect → openai 1035 / anthropic 243건 적재. `summarized:0`(더미키).
+- **멱등성**: 재수집 → anthropic `new=0`, openai `new=2`(그 사이 실제 신규 글만 삽입). 중복 url 0건.
+- **URL 정규화**: 저장 url 중 쿼리스트링/utm 포함 **0건**.
+- **인증**: 헤더 없는 collect → **401** `{"error":{"message":"Unauthorized"}}`.
+- **요약 실패 격리(Phase 3)**: 더미 Gemini 키로 전건 실패했으나 크래시 없이 `summary` NULL 유지(1280건 전부 NULL) → 다음 사이클 재시도 경로 확인.
+- **조회 API(Phase 4)**: `GET /api/articles`(필터/페이지/limit clamp 50), `PATCH /:id/read`(200 / 없는·비정수 id 404), `GET /api/status` 실응답 전부 §6.3 일치 → `docs/API_ACTUAL.md`에 실물 기록.
+
+### 아직 미검증(다음 액션)
+- **실제 Gemini 키로 요약 성공** — 현재 GEMINI_API_KEY/GEMINI_MODEL 실값 미투입. `GEMINI_MODEL`(무료 티어 모델명) 확정 필요(설계서 §12).
+- **배포(Render) 재확인** — 배포본은 구버전. Phase 3~4 코드 push + 재배포 후 `https://ai-news-03ub.onrender.com/api/articles` 재검증.
+
+### 프로덕션 DB 현재 상태 (검증으로 생긴 실데이터)
+- `articles` 약 1280건 적재됨(openai≈1037/anthropic 243), 전부 `summary IS NULL`, `id=1`은 읽음 테스트로 `is_read=true`. `collect_log`에 ok 로그 존재.
+- 원치 않으면 `TRUNCATE articles, collect_log;`로 초기화 가능. 그대로 두면 실 Gemini 키 투입 후 사이클마다 20건씩 요약 백필.
+- **성능 메모**: collect 1회가 약 4분(1279행 순차 INSERT 왕복 지배적). 시간당 cron엔 무해하나, 초기 백필/속도 개선이 필요하면 다건 INSERT(values 배치)로 최적화 여지.
 
 ## 4. 사용자가 .env 준비 후 실행할 검증 명령 (Phase 2 완료 기준)
 
