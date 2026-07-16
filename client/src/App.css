@@ -1,50 +1,51 @@
-/* Phase 6: 다크 테마 마감 + 반응형(모바일 1열 / 데스크톱 2열) + 콜드 스타트 안내. */
-.body{
-  overflow: hidden;
-}
+/* 반응형 다크 UI — 자연스러운 페이지 흐름 + 카드 그리드 + hover 인터랙션 */
 
 .app {
-  text-align: left;
-  padding: 16px;
-  box-sizing: border-box;
   width: 100%;
+  padding: 20px 16px 56px;
+  text-align: left;
 }
 
+@media (max-width: 480px) {
+  .app {
+    padding: 16px 12px 40px;
+  }
+}
+
+/* ── 헤더 ── */
 .app__header {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px 16px;
 }
 
 .app__title {
-  font-size: 28px;
-  margin: 8px 0;
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin: 4px 0;
+  color: var(--text-h);
 }
 
-@media (max-width: 480px) {
-  .app__title {
-    font-size: 24px;
-  }
-}
-
-/* StatusBar */
+/* ── StatusBar ── */
 .statusbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .statusbar__sources {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .status-chip {
-  padding: 2px 8px;
+  padding: 3px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
   font-size: 12px;
@@ -58,14 +59,14 @@
   background: var(--danger-bg);
 }
 
-/* FilterBar */
+/* ── FilterBar ── */
 .filterbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: 10px 12px;
   margin: 16px 0;
-  padding: 8px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -73,17 +74,27 @@
 .filterbar__sources,
 .filterbar__lang {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
 .filter-btn {
-  padding: 6px 12px;
+  padding: 7px 14px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
-  color: inherit;
+  color: var(--text);
   cursor: pointer;
   font-size: 14px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--accent-border);
+  color: var(--text-h);
 }
 
 .filter-btn--active {
@@ -92,59 +103,76 @@
   color: var(--text-h);
 }
 
+.filter-btn--install {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
 .filterbar__unread {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 14px;
+  color: var(--text);
   cursor: pointer;
 }
 
 .filterbar__count {
   margin-left: auto;
-  font-size: 13px;
-  padding: 2px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
+  font-size: 13px;
+  white-space: nowrap;
   background: var(--accent-bg);
   color: var(--text-h);
 }
 
-/* 카드 목록: 모바일 1열 / 데스크톱 2열 그리드 */
+/* ── 카드 그리드: 모바일 1열 / 태블릿+ 2열, 페이지 자연 스크롤 ── */
 .app__list {
   display: grid;
-  height: 550px;
-  overflow-y: scroll;
   grid-template-columns: 1fr;
-  gap: 12px;
-  align-items: start;
+  gap: 16px;
+  align-items: stretch;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 720px) {
   .app__list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* ── 카드 ── */
 .card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 16px 18px;
   border: 1px solid var(--border);
   border-left: 4px solid transparent;
-  border-radius: 8px;
-  padding: 14px 16px;
-  cursor: pointer;
-  height: 150px;
+  border-radius: 12px;
   background: var(--surface);
+  cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+  will-change: transform;
 }
 
+/* hover: 살짝 확대 + 떠오르는 느낌으로 "선택" 강조 */
 .card:hover {
+  transform: translateY(-4px) scale(1.05);
   border-color: var(--accent-border);
   background: var(--surface-hover);
+  box-shadow: var(--shadow);
+  z-index: 2;
 }
 
 .card:focus-visible {
-  outline: 2px solid var(--accent-border);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -168,14 +196,16 @@
 .card__dot {
   margin-left: auto;
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
 /* 소스 뱃지: Anthropic 주황 계열 / OpenAI 무채색 */
@@ -190,8 +220,10 @@
 }
 
 .card__title {
-  font-size: 17px;
-  margin: 8px 0 6px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 2px 0;
 }
 
 .card__title a {
@@ -203,13 +235,27 @@
   text-decoration: underline;
 }
 
+/* 본문: 최대 4줄로 클램프해 카드 높이를 고르게 */
 .card__body {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* 콜드 스타트 안내 배너 (로딩 15초 초과 시) */
+/* 모션 최소화 선호 시 확대 효과 제거 */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card:hover {
+    transform: none;
+  }
+}
+
+/* ── 콜드 스타트 안내 배너 (로딩 15초 초과 시) ── */
 .app__waking {
   display: flex;
   align-items: center;
@@ -218,7 +264,7 @@
   padding: 12px 16px;
   margin: 12px 0;
   border: 1px solid var(--accent-border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--accent-bg);
   color: var(--text-h);
   font-size: 14px;
@@ -245,50 +291,53 @@
   }
 }
 
-/* 상태 표시 */
+/* ── 상태 표시 ── */
 .app__error {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 10px 14px;
+  margin: 12px 0;
   border: 1px solid var(--danger-border);
-  border-radius: 6px;
+  border-radius: 10px;
   color: var(--danger);
   background: var(--danger-bg);
-  margin: 12px 0;
 }
 
 .app__empty,
 .app__loading {
   text-align: center;
   color: var(--text);
-  padding: 24px 0;
+  padding: 28px 0;
 }
 
 .app__more {
   text-align: center;
-  padding-top: 20px;
+  padding-top: 24px;
 }
 
 .app__more button,
 .app__error button {
-  padding: 8px 20px;
+  padding: 9px 22px;
   border: 1px solid var(--accent-border);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--accent-bg);
   color: var(--text-h);
   cursor: pointer;
   font-size: 14px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
-/* PWA 설치 버튼 강조 */
-.filter-btn--install {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-  color: var(--text-h);
+.app__more button:hover,
+.app__error button:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
 }
 
-/* PWA 설치 방법 안내 (네이티브 프롬프트 미지원 브라우저용) */
+/* ── PWA 설치 방법 안내 (네이티브 프롬프트 미지원 브라우저용) ── */
 .app__install-help {
   margin: 10px 0 0;
   padding: 10px 14px;
@@ -297,7 +346,7 @@
   color: var(--text);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .app__install-help strong {

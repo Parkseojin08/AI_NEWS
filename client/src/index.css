@@ -1,99 +1,85 @@
-/* 다크 테마 기본 (Phase 6). 팔레트 단일 출처 — 컴포넌트 색은 이 변수만 참조한다. */
+/* 다크 테마 기본. 팔레트 단일 출처 — 컴포넌트 색은 이 변수만 참조한다. */
 :root {
   --text: #9ca3af; /* 본문/보조 텍스트 */
   --text-h: #f3f4f6; /* 제목/강조 텍스트 */
   --bg: #16171d; /* 페이지 배경 */
   --surface: #1c1e26; /* 카드/칩 등 표면 (배경보다 한 톤 밝게) */
-  --surface-hover: #232530;
+  --surface-hover: #22242e;
   --border: #2e303a;
   --code-bg: #1f2028;
   --accent: #c084fc; /* 액센트 (안읽음 보더/활성 필터/버튼) */
   --accent-bg: rgba(192, 132, 252, 0.15);
   --accent-border: rgba(192, 132, 252, 0.5);
-  --danger: #f87171; /* 에러/오류 상태 — 다크 배경 대비 확보 */
+  --danger: #f87171; /* 에러/오류 상태 */
   --danger-bg: rgba(248, 113, 113, 0.12);
   --danger-border: rgba(248, 113, 113, 0.5);
-  --social-bg: rgba(47, 48, 58, 0.5);
   --shadow:
-    rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.45) 0 14px 28px -10px, rgba(0, 0, 0, 0.3) 0 5px 10px -6px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/1.5 var(--sans);
   color-scheme: dark;
   color: var(--text);
   background: var(--bg);
-  font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: left;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
+}
+
+body {
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden; /* 카드 hover scale 시 가로 스크롤 방지 */
+}
+
+#root {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  border-inline: 1px solid var(--border);
+}
+
+/* 좁은 화면에선 양옆 보더 제거 (엣지까지 꽉 차게) */
+@media (max-width: 1040px) {
+  #root {
+    border-inline: none;
+  }
 }
 
 h1,
 h2 {
   font-family: var(--heading);
-  font-weight: 500;
   color: var(--text-h);
+  font-weight: 600;
+  margin: 0;
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
-}
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
 p {
   margin: 0;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
 code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 2px 6px;
+  border-radius: 4px;
   background: var(--code-bg);
+  color: var(--text-h);
 }
