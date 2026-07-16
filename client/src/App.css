@@ -1,4 +1,7 @@
 /* Phase 6: 다크 테마 마감 + 반응형(모바일 1열 / 데스크톱 2열) + 콜드 스타트 안내. */
+.body{
+  overflow: hidden;
+}
 
 .app {
   text-align: left;
@@ -109,6 +112,8 @@
 /* 카드 목록: 모바일 1열 / 데스크톱 2열 그리드 */
 .app__list {
   display: grid;
+  height: 550px;
+  overflow-y: scroll;
   grid-template-columns: 1fr;
   gap: 12px;
   align-items: start;
@@ -126,6 +131,7 @@
   border-radius: 8px;
   padding: 14px 16px;
   cursor: pointer;
+  height: 150px;
   background: var(--surface);
   transition:
     border-color 0.15s ease,
@@ -261,7 +267,7 @@
 
 .app__more {
   text-align: center;
-  padding: 20px 0;
+  padding-top: 20px;
 }
 
 .app__more button,
