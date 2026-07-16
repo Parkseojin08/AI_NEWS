@@ -1,0 +1,54 @@
+name: collect-news
+
+# 두 개의 cron을 한 파일에 두고 job 을 라우팅한다.
+#  - '0 * * * *'    매시 정각(UTC): 수집(collect)
+#  - '17 4 * * 1'   매주 월요일 04:17(UTC): keepalive (레포 60일 비활성화 방지)
+# workflow_dispatch(수동 실행)는 collect 만 실행한다.
+on:
+  schedule:
+    - cron: '0 * * * *'
+    - cron: '17 4 * * 1'
+  workflow_dispatch:
+
+# 최소 권한 원칙: 기본은 읽기, keepalive job 만 write 로 승격한다.
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    # 매시 cron 또는 수동 실행일 때만 동작. keepalive cron(월요일)에는 실행하지 않는다.
+    if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger collect endpoint
+        # Render Free 콜드 스타트(30~60초) 대비: 첫 요청이 타임아웃/5xx 여도 재시도한다.
+        #   --max-time 120        요청당 최대 120초 (콜드 스타트 여유)
+        #   --retry 3             최대 3회 재시도
+        #   --retry-delay 30      재시도 간격 30초 (스핀업 시간 확보)
+        #   --retry-all-errors    타임아웃/연결오류/HTTP 에러 모두 재시도 대상
+        #   --fail                HTTP 4xx/5xx 를 종료코드 실패로 취급 (step 실패 처리)
+        run: |
+          curl -sS -X POST "${{ secrets.API_BASE_URL }}/api/collect" \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            --max-time 120 \
+            --retry 3 \
+            --retry-delay 30 \
+            --retry-all-errors \
+            --fail
+
+  keepalive:
+    # 주 1회(월요일) cron 에서만 동작. 매시 커밋이 Render 재배포를 유발하는 것을 피하기 위해 분리.
+    if: github.event.schedule == '17 4 * * 1'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keepalive commit (60일 비활성화 방지)
+        run: |
+          date > .github/keepalive
+          git config user.name "keepalive-bot"
+          git config user.email "actions@github.com"
+          git add .github/keepalive
+          git diff --cached --quiet || git commit -m "chore: keepalive [skip ci]"
+          git push

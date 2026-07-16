@@ -310,5 +310,5 @@ tags:
 
 **세션 C**
 - [x] Phase 6 (실검증 완료 — 다크/2열↔1열 반응형/15초 콜드스타트 안내)
-- [ ] Phase 7 (부분: Render 배포·CORS OK / GitHub Actions 미구성 / Vercel 프론트 배포 미완)
+- [~] Phase 7 (Render·Vercel 프로덕션 라이브 / collect.yml·DEPLOY.md 작성 완료 / **workflow_dispatch 수동 실행은 사용자 GitHub에서 검증 필요**)
 - [ ] Phase 8
