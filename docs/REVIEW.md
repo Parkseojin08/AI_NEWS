@@ -21,7 +21,7 @@
 ## 이상 없음 (확인된 항목)
 
 **보안**
-- 시크릿 노출: 전 커밋 이력·트리 grep(`AIza`, `AQ.Ab`, `npg_`, `postgresql://` 실값, `ep-hidden-mouse`) → 0건. 매칭은 문서 플레이스홀더뿐.
+- 시크릿 노출: 전 커밋 이력·트리를 Gemini 키 형식/DB 연결문자열/Neon 호스트·비밀번호 패턴으로 grep → 실제 값 0건. 매칭은 문서 플레이스홀더뿐.
 - `.env`/`data.txt` 미추적, `.env.example`만 추적. `.gitignore` 정상.
 - 프론트 번들엔 `VITE_API_BASE_URL`(공개 URL)만. Gemini/DB/Cron 시크릿은 서버 전용.
 - SQL 전부 파라미터 바인딩($n). 문자열 결합 쿼리 없음.
