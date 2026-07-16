@@ -1,12 +1,13 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import type { Request, Response } from 'express';
+import cors from 'cors';
 
 // config를 가장 먼저 로드 → env 검증 통과 못하면 여기서 process.exit(1)
-const config = require('./config');
-const { notFoundHandler, errorHandler } = require('./middlewares/errorHandler');
-const collectRouter = require('./routes/collect');
-const articlesRouter = require('./routes/articles');
-const statusRouter = require('./routes/status');
+import config from './config';
+import { notFoundHandler, errorHandler } from './middlewares/errorHandler';
+import collectRouter from './routes/collect';
+import articlesRouter from './routes/articles';
+import statusRouter from './routes/status';
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(cors({ origin: config.corsOrigins }));
 
 // Render 헬스체크 + 프론트 콜드 스타트 웜업용 (설계서 §6.4)
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
 
@@ -34,4 +35,4 @@ app.listen(config.port, () => {
   console.log(`[server] listening on ${config.port}`);
 });
 
-module.exports = app;
+export default app;

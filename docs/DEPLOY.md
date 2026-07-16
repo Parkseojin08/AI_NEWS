@@ -46,9 +46,11 @@
    | 항목 | 값 |
    | --- | --- |
    | Root Directory | `server` |
-   | Build Command | `npm install` |
-   | Start Command | `node src/index.js` |
+   | Build Command | `npm install && npm run build` |
+   | Start Command | `node dist/index.js` |
    | Instance Type | Free |
+
+   > 서버는 TypeScript다. `npm run build`(tsc)가 `src/*.ts` → `dist/*.js`로 컴파일하고 `node dist/index.js`로 실행한다. (typescript·@types는 dependencies에 있어 Render `npm install`에서 항상 설치됨.)
 
 3. [ ] **Environment** 탭에서 환경 변수 5종 등록 (설계서 §4). 값은 콘솔에만 입력:
 

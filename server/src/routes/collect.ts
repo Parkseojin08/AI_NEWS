@@ -2,13 +2,14 @@
 // - cronAuth 미들웨어로 X-Cron-Secret 검증 후 수집 실행
 // - 응답: { results: [{source, fetched, new}], summarized }
 
-const express = require('express');
-const cronAuth = require('../middlewares/cronAuth');
-const { runCollect } = require('../services/collector');
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
+import cronAuth from '../middlewares/cronAuth';
+import { runCollect } from '../services/collector';
 
 const router = express.Router();
 
-router.post('/collect', cronAuth, async (req, res, next) => {
+router.post('/collect', cronAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await runCollect();
     res.status(200).json(result);
@@ -18,4 +19,4 @@ router.post('/collect', cronAuth, async (req, res, next) => {
   }
 });
 
-module.exports = router;
+export default router;

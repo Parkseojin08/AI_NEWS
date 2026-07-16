@@ -4,15 +4,32 @@
 // DISTINCT ON (source)로 소스별 최신 1행을 뽑는다.
 // ORDER BY source, executed_at DESC → 각 source 그룹의 첫 행이 최신 실행.
 
-const express = require('express');
-const { query } = require('../db');
+import express from 'express';
+import type { Request, Response, NextFunction } from 'express';
+import { query } from '../db';
 
 const router = express.Router();
 
+interface StatusRow {
+  source: string;
+  executed_at: Date;
+  status: 'ok' | 'error';
+  new_count: number;
+  error_message: string | null;
+}
+
+interface StatusEntry {
+  source: string;
+  executedAt: Date;
+  status: 'ok' | 'error';
+  newCount: number;
+  errorMessage?: string | null;
+}
+
 // GET /api/status
-router.get('/status', async (req, res, next) => {
+router.get('/status', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const result = await query(
+    const result = await query<StatusRow>(
       `SELECT DISTINCT ON (source)
               source, executed_at, status, new_count, error_message
          FROM collect_log
@@ -22,7 +39,7 @@ router.get('/status', async (req, res, next) => {
     // camelCase 매핑 (설계서 §6.3).
     // newCount는 항상 포함. errorMessage는 status='error'일 때만 의미가 있어 그때만 포함.
     const lastCollect = result.rows.map((r) => {
-      const entry = {
+      const entry: StatusEntry = {
         source: r.source,
         executedAt: r.executed_at,
         status: r.status,
@@ -40,4 +57,4 @@ router.get('/status', async (req, res, next) => {
   }
 });
 
-module.exports = router;
+export default router;

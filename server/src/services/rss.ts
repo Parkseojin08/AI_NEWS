@@ -2,7 +2,8 @@
 // - rss-parser 사용 (이미 설치됨)
 // - fetch 실패는 예외로 던져 collector가 소스 단위로 격리 처리하게 한다.
 
-const Parser = require('rss-parser');
+import Parser from 'rss-parser';
+import type { Source, NormalizedItem } from '../types';
 
 const parser = new Parser({
   timeout: 20000, // 20s — Render 콜드 스타트/네트워크 지연 대비
@@ -13,7 +14,7 @@ const parser = new Parser({
 });
 
 // 소스별 피드 URL (설계서 §6.1). source 값은 DB CHECK 제약과 일치해야 한다.
-const FEEDS = {
+const FEEDS: Record<Source, string> = {
   openai: 'https://openai.com/news/rss.xml',
   anthropic:
     'https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml',
@@ -25,10 +26,8 @@ const DESCRIPTION_MAX_LENGTH = 2000;
  * link의 쿼리스트링(utm 등)과 fragment를 제거해 정규화된 url을 만든다.
  * 이 값이 articles.url UNIQUE 중복 방지 키이므로 필수 (설계서 §6.1).
  * URL 파싱 실패 시 원본 문자열을 그대로 반환한다.
- * @param {string} link
- * @returns {string}
  */
-function normalizeUrl(link) {
+function normalizeUrl(link: string): string {
   const raw = String(link).trim();
   try {
     const u = new URL(raw);
@@ -43,10 +42,8 @@ function normalizeUrl(link) {
 
 /**
  * HTML 태그를 제거하고 공백을 정리한 뒤 최대 길이로 절단한다 (설계서 §6.1).
- * @param {string} [html]
- * @returns {string}
  */
-function stripHtml(html) {
+function stripHtml(html?: string | null): string {
   if (!html) return '';
   const text = String(html)
     .replace(/<[^>]*>/g, ' ') // 태그 제거
@@ -65,13 +62,13 @@ function stripHtml(html) {
 
 /**
  * pubDate를 Date로 파싱한다. 실패 시 수집 시각(fallback)으로 대체하고 warn 로그.
- * @param {string} [pubDate]
- * @param {string} source
- * @param {string} url
- * @param {Date} fetchedAt
- * @returns {Date}
  */
-function parsePublishedAt(pubDate, source, url, fetchedAt) {
+function parsePublishedAt(
+  pubDate: string | undefined,
+  source: string,
+  url: string,
+  fetchedAt: Date
+): Date {
   if (pubDate) {
     const d = new Date(pubDate);
     if (!Number.isNaN(d.getTime())) return d;
@@ -84,11 +81,9 @@ function parsePublishedAt(pubDate, source, url, fetchedAt) {
 
 /**
  * 단일 소스 피드를 fetch/파싱/정규화한다.
- * @param {'openai'|'anthropic'} source
- * @returns {Promise<Array<{source:string, title:string, url:string, description:string, publishedAt:Date}>>}
  * @throws fetch/파싱 실패 시 예외 (collector가 소스 단위로 잡는다)
  */
-async function fetchAndParse(source) {
+async function fetchAndParse(source: Source): Promise<NormalizedItem[]> {
   const feedUrl = FEEDS[source];
   if (!feedUrl) {
     throw new Error(`알 수 없는 소스: ${source}`);
@@ -98,7 +93,7 @@ async function fetchAndParse(source) {
   const fetchedAt = new Date();
   const items = Array.isArray(feed.items) ? feed.items : [];
 
-  const normalized = [];
+  const normalized: NormalizedItem[] = [];
   for (const item of items) {
     const title = item.title && String(item.title).trim();
     const link = item.link && String(item.link).trim();
@@ -119,7 +114,7 @@ async function fetchAndParse(source) {
   return normalized;
 }
 
-module.exports = {
+export {
   fetchAndParse,
   normalizeUrl, // 테스트/재사용용 export
   stripHtml,

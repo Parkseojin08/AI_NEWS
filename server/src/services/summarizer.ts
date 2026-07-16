@@ -7,7 +7,7 @@
 // - 실패(네트워크/4xx/5xx/429/파싱 실패)는 예외를 throw한다.
 //   collector가 행 단위 try/catch로 잡아 skip하고 summary는 NULL로 남긴다 → 다음 사이클 재시도.
 
-const config = require('../config');
+import config from '../config';
 
 // 요약 프롬프트 고정 지시문 (설계서 §6.2)
 const PROMPT_PREFIX =
@@ -16,22 +16,28 @@ const PROMPT_PREFIX =
 // Gemini 무료 티어 분당 한도 및 콜드 스타트 보호용 타임아웃 (ms)
 const REQUEST_TIMEOUT_MS = 20000;
 
+// Gemini generateContent 응답의 관심 필드만 최소 정의 (외부 JSON → 좁혀서 사용)
+interface GeminiResponse {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{ text?: string }>;
+    };
+  }>;
+}
+
 /**
  * Generative Language API v1beta generateContent 엔드포인트 URL.
  * 모델명은 env 주입값(config.geminiModel)만 사용한다.
  */
-function buildEndpoint() {
+function buildEndpoint(): string {
   return `https://generativelanguage.googleapis.com/v1beta/models/${config.geminiModel}:generateContent`;
 }
 
 /**
  * 제목/설명으로 요청 본문(text)을 조합한다.
  * description이 비면 title만으로 요약을 시도한다.
- * @param {string} title
- * @param {string|null|undefined} description
- * @returns {string}
  */
-function buildPromptText(title, description) {
+function buildPromptText(title: string, description: string | null | undefined): string {
   const parts = [PROMPT_PREFIX];
   if (title) parts.push(`제목: ${title}`);
   if (description && description.trim()) parts.push(`설명: ${description}`);
@@ -40,12 +46,10 @@ function buildPromptText(title, description) {
 
 /**
  * 한 건의 뉴스를 한국어 3문장으로 요약한다.
- * @param {string} title
- * @param {string|null|undefined} description
- * @returns {Promise<string>} 요약 텍스트 (트림됨)
- * @throws {Error} 네트워크/HTTP 비정상/응답 파싱 실패 시 (HTTP status 포함)
+ * @returns 요약 텍스트 (트림됨)
+ * @throws 네트워크/HTTP 비정상/응답 파싱 실패 시 (HTTP status 포함)
  */
-async function summarize(title, description) {
+async function summarize(title: string, description: string | null | undefined): Promise<string> {
   const text = buildPromptText(title, description);
 
   const body = {
@@ -60,7 +64,7 @@ async function summarize(title, description) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  let response;
+  let response: Response;
   try {
     response = await fetch(buildEndpoint(), {
       method: 'POST',
@@ -74,7 +78,7 @@ async function summarize(title, description) {
     });
   } catch (e) {
     // 네트워크 오류/타임아웃(abort) — 의미 있는 Error로 재던짐
-    throw new Error(`Gemini 요청 실패: ${e.message}`);
+    throw new Error(`Gemini 요청 실패: ${(e as Error).message}`);
   } finally {
     clearTimeout(timer);
   }
@@ -84,17 +88,17 @@ async function summarize(title, description) {
     let detail = '';
     try {
       detail = (await response.text()).slice(0, 500);
-    } catch (_) {
+    } catch {
       // 본문 읽기 실패는 무시
     }
     throw new Error(`Gemini HTTP ${response.status}${detail ? `: ${detail}` : ''}`);
   }
 
-  let data;
+  let data: GeminiResponse;
   try {
-    data = await response.json();
+    data = (await response.json()) as GeminiResponse;
   } catch (e) {
-    throw new Error(`Gemini 응답 JSON 파싱 실패: ${e.message}`);
+    throw new Error(`Gemini 응답 JSON 파싱 실패: ${(e as Error).message}`);
   }
 
   // candidates[0].content.parts[0].text 추출
@@ -107,4 +111,4 @@ async function summarize(title, description) {
   return summary.trim();
 }
 
-module.exports = { summarize };
+export { summarize };
