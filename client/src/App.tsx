@@ -5,8 +5,14 @@ import { StatusBar } from './components/StatusBar';
 import { FilterBar } from './components/FilterBar';
 import { ArticleCard } from './components/ArticleCard';
 import './App.css';
+import { registerSW } from 'virtual:pwa-register';
+
 
 function App() {
+  useEffect(() => {
+    registerSW({ immediate: true });
+  }, []);
+
   const {
     articles,
     source,
