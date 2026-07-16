@@ -310,5 +310,5 @@ tags:
 
 **세션 C**
 - [x] Phase 6 (실검증 완료 — 다크/2열↔1열 반응형/15초 콜드스타트 안내)
-- [~] Phase 7 (Render·Vercel 프로덕션 라이브 / collect.yml·DEPLOY.md 작성 완료 / **workflow_dispatch 수동 실행은 사용자 GitHub에서 검증 필요**)
-- [ ] Phase 8
+- [x] Phase 7 (Render·Vercel 프로덕션 라이브 / collect.yml·DEPLOY.md / workflow_dispatch 성공·/api/status 갱신 확인)
+- [x] Phase 8 (전체 리뷰 완료 — critical 0, major 1·minor 2 수정 완료. `docs/REVIEW.md`)

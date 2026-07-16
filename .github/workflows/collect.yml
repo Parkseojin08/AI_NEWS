@@ -21,19 +21,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger collect endpoint
-        # Render Free 콜드 스타트(30~60초) 대비: 첫 요청이 타임아웃/5xx 여도 재시도한다.
-        #   --max-time 120        요청당 최대 120초 (콜드 스타트 여유)
-        #   --retry 3             최대 3회 재시도
-        #   --retry-delay 30      재시도 간격 30초 (스핀업 시간 확보)
-        #   --retry-all-errors    타임아웃/연결오류/HTTP 에러 모두 재시도 대상
+        # /api/collect 은 RSS 수집 + 요약(최대 20건 동기)까지 끝낸 뒤 응답한다.
+        # Render 콜드 스타트(30~60초) + 요약 지연을 한 번의 요청 안에서 흡수하도록 넉넉히 잡는다.
+        #   --max-time 300        요청당 최대 300초 (콜드 스타트 + 요약 여유)
+        #   --retry 2             일시적 5xx(502/503 등)만 재시도. --retry-all-errors 는 쓰지 않는다:
+        #                         타임아웃 시 같은 POST를 겹쳐 재발사하면 서버에서 runCollect 가 중복
+        #                         실행되어 요약이 중복되고 Gemini 분당 한도를 자초하기 때문.
+        #   --retry-delay 30      재시도 간격 30초
         #   --fail                HTTP 4xx/5xx 를 종료코드 실패로 취급 (step 실패 처리)
         run: |
           curl -sS -X POST "${{ secrets.API_BASE_URL }}/api/collect" \
             -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
-            --max-time 120 \
-            --retry 3 \
+            --max-time 300 \
+            --retry 2 \
             --retry-delay 30 \
-            --retry-all-errors \
             --fail
 
   keepalive:

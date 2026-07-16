@@ -111,11 +111,12 @@ router.get('/articles', async (req, res, next) => {
 router.patch('/articles/:id/read', async (req, res, next) => {
   try {
     // id는 양의 정수만 허용. 그 외(문자/음수/소수)는 존재할 수 없는 리소스로 보고 404.
+    // int4(SERIAL) 최대값 초과도 존재 불가 → 404 (DB integer out of range 500 방지).
     const raw = req.params.id;
-    if (!/^\d+$/.test(raw)) {
+    const id = Number(raw);
+    if (!/^\d+$/.test(raw) || id > 2147483647) {
       return res.status(404).json({ error: { message: 'Article not found' } });
     }
-    const id = parseInt(raw, 10);
 
     const result = await query(
       'UPDATE articles SET is_read = TRUE WHERE id = $1 RETURNING id, is_read',
