@@ -7,11 +7,35 @@ import { ArticleCard } from './components/ArticleCard';
 import './App.css';
 import { registerSW } from 'virtual:pwa-register';
 
-
 function App() {
   useEffect(() => {
     registerSW({ immediate: true });
   }, []);
+
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const installPWA = async () => {
+    if (!installPrompt) return;
+
+    installPrompt.prompt();
+
+    await installPrompt.userChoice;
+
+    setInstallPrompt(null);
+  };
 
   const {
     articles,
@@ -29,8 +53,6 @@ function App() {
     reload,
   } = useArticles();
 
-  // 카드 본문 언어 토글: 제목은 항상 영문 원제, 본문(요약/설명)만 전환.
-  // 초기값은 localStorage 저장값, 없으면 'ko'.
   const [lang, setLang] = useState<'ko' | 'en'>(() => {
     const saved = localStorage.getItem('lang');
     return saved === 'en' || saved === 'ko' ? saved : 'ko';
@@ -40,8 +62,6 @@ function App() {
     localStorage.setItem('lang', lang);
   }, [lang]);
 
-  // 콜드 스타트 웜업: 페이지 로드 즉시 /health 선발사 (실패 무시).
-  // 지연 안내 UX(15초 초과 시 "서버 깨우는 중")는 Phase 6에서 마감.
   useEffect(() => {
     checkHealth().catch(() => {
       /* 웜업 실패는 무시 */
@@ -65,9 +85,10 @@ function App() {
         onUnreadChange={setUnread}
         lang={lang}
         onLangChange={setLang}
+        onInstall={installPWA}
+        canInstall={!!installPrompt}
       />
 
-      {/* 콜드 스타트 안내: 로딩이 15초를 넘기면 노출 (Render 스핀다운 웜업 대기) */}
       {loading && slowLoading && (
         <div className="app__waking" role="status" aria-live="polite">
           <span className="app__waking-spinner" aria-hidden="true" />

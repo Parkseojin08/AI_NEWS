@@ -8,6 +8,8 @@ interface FilterBarProps {
   onSourceChange: (source: Source | 'all') => void;
   onUnreadChange: (unread: boolean) => void;
   onLangChange: (lang: 'ko' | 'en') => void;
+  onInstall?: () => void;
+  canInstall?: boolean;
 }
 
 const SOURCE_OPTIONS: { value: Source | 'all'; label: string }[] = [
@@ -29,6 +31,8 @@ export function FilterBar({
   onSourceChange,
   onUnreadChange,
   onLangChange,
+  onInstall,
+  canInstall,
 }: FilterBarProps) {
   return (
     <div className="filterbar">
@@ -68,6 +72,16 @@ export function FilterBar({
           </button>
         ))}
       </div>
+
+      {canInstall && (
+        <button
+          type="button"
+          className="filter-btn"
+          onClick={onInstall}
+        >
+          📱 앱 설치
+        </button>
+      )}
 
       <span className="filterbar__count" title="전체 안읽음 수">
         안읽음 {unreadCount}
