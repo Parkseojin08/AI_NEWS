@@ -16,7 +16,7 @@
 | --- | --- |
 | GitHub 레포 | **`Parkseojin08/AI_NEWS`** (밑줄 있음) |
 | 백엔드(Render) | `https://ai-news-03ub.onrender.com` |
-| 프론트(Vercel) | `https://ainews-khaki.vercel.app` |
+| 프론트(Vercel) | `https://ainews-hub.vercel.app` |
 | DB | Neon PostgreSQL (Free) |
 | 요약 | Gemini API (모델 `gemini-flash-latest`) |
 
@@ -58,7 +58,7 @@
    | `CRON_SECRET` | 랜덤 32자 이상. **GitHub Secrets의 `CRON_SECRET`과 반드시 동일 값** |
    | `GEMINI_API_KEY` | Gemini API 키 (`AIza...`) |
    | `GEMINI_MODEL` | **`gemini-flash-latest`** (기존 `gemini-2.5-flash`는 신규 키에서 차단됨) |
-   | `CORS_ORIGIN` | 우선 `https://ainews-khaki.vercel.app` (4단계에서 최종 확정) |
+   | `CORS_ORIGIN` | 우선 `https://ainews-hub.vercel.app` (4단계에서 최종 확정) |
 
    - `PORT`는 Render가 자동 주입하므로 등록하지 않는다 (서버가 `process.env.PORT` 우선 사용).
 4. [ ] 배포 완료 후 헬스체크: 브라우저 또는 `curl https://ai-news-03ub.onrender.com/health` → **200** `{"status":"ok"}`
@@ -85,7 +85,7 @@
    | --- | --- |
    | `VITE_API_BASE_URL` | `https://ai-news-03ub.onrender.com` (끝 슬래시 없이) |
 
-4. [ ] Deploy 실행 → 프로덕션 도메인 `https://ainews-khaki.vercel.app` 접속 확인
+4. [ ] Deploy 실행 → 프로덕션 도메인 `https://ainews-hub.vercel.app` 접속 확인
 
 > ⚠️ **루트 `vercel.json` 두지 말 것.** Root Directory=`client`와 충돌해 `client/client` 경로로 빌드되는 오류가 발생한다.
 > (한 번 추가했다가 제거함.) Vite 자동 인식만으로 충분하다. 모노레포 루트에 `vercel.json`이 다시 생기면 삭제한다.
@@ -95,8 +95,8 @@
 ## 4. Render CORS 반영 — 사용자 수행 필요
 
 1. [ ] Render → 서비스 → **Environment** → `CORS_ORIGIN` 값을 Vercel 프로덕션 도메인으로 확정
-   - 값: `https://ainews-khaki.vercel.app`
-   - 로컬 개발도 병행하려면 콤마로 추가: `https://ainews-khaki.vercel.app,http://localhost:5173`
+   - 값: `https://ainews-hub.vercel.app`
+   - 로컬 개발도 병행하려면 콤마로 추가: `https://ainews-hub.vercel.app,http://localhost:5173`
 2. [ ] 저장 → Render 자동 재배포 대기 → 프론트에서 API 호출 시 CORS 에러 없는지 확인
    (브라우저 DevTools → Network → `/api/articles` 응답 200, CORS 차단 없음)
 
@@ -138,7 +138,7 @@
    - collect job이 초록불(성공)로 끝나는지 확인. 콜드 스타트면 첫 curl이 재시도 후 성공할 수 있다.
 3. [ ] **수집 반영 확인**: `curl https://ai-news-03ub.onrender.com/api/status`
    - 응답의 `lastCollect[].executedAt`이 방금 실행 시각(최신)으로 갱신되고 `status: "ok"`인지 확인.
-4. [ ] **실데이터 렌더링**: `https://ainews-khaki.vercel.app` 새로고침 → 기사 카드(제목/한국어 요약/날짜/소스 뱃지)가 실제로 표시되는지 확인.
+4. [ ] **실데이터 렌더링**: `https://ainews-hub.vercel.app` 새로고침 → 기사 카드(제목/한국어 요약/날짜/소스 뱃지)가 실제로 표시되는지 확인.
    - 요약이 아직 NULL인 카드는 description으로 대체 표시되는 것이 정상 (요약은 다음 사이클에 채워짐).
 5. [ ] (선택) 자동 수집 확인: 다음 정각(UTC 기준) 이후 `/api/status`의 `executedAt`이 자동 갱신되는지 확인.
 
