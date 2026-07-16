@@ -4,8 +4,10 @@ interface FilterBarProps {
   source: Source | 'all';
   unread: boolean;
   unreadCount: number;
+  lang: 'ko' | 'en';
   onSourceChange: (source: Source | 'all') => void;
   onUnreadChange: (unread: boolean) => void;
+  onLangChange: (lang: 'ko' | 'en') => void;
 }
 
 const SOURCE_OPTIONS: { value: Source | 'all'; label: string }[] = [
@@ -14,12 +16,19 @@ const SOURCE_OPTIONS: { value: Source | 'all'; label: string }[] = [
   { value: 'openai', label: 'OpenAI' },
 ];
 
+const LANG_OPTIONS: { value: 'ko' | 'en'; label: string }[] = [
+  { value: 'ko', label: '한국어' },
+  { value: 'en', label: 'English' },
+];
+
 export function FilterBar({
   source,
   unread,
   unreadCount,
+  lang,
   onSourceChange,
   onUnreadChange,
+  onLangChange,
 }: FilterBarProps) {
   return (
     <div className="filterbar">
@@ -45,6 +54,20 @@ export function FilterBar({
         />
         안읽음만
       </label>
+
+      <div className="filterbar__lang" role="group" aria-label="본문 언어">
+        {LANG_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            className={`filter-btn${lang === opt.value ? ' filter-btn--active' : ''}`}
+            aria-pressed={lang === opt.value}
+            onClick={() => onLangChange(opt.value)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
       <span className="filterbar__count" title="전체 안읽음 수">
         안읽음 {unreadCount}

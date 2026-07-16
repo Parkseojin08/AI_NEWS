@@ -2,6 +2,7 @@ import type { Article } from '../api/client';
 
 interface ArticleCardProps {
   article: Article;
+  lang: 'ko' | 'en';
   onRead: (id: number) => void;
 }
 
@@ -20,9 +21,11 @@ function formatDate(iso: string): string {
   });
 }
 
-export function ArticleCard({ article, onRead }: ArticleCardProps) {
-  // summary가 null이면 description으로 대체 (요약 대기/실패 정상 케이스)
-  const body = article.summary ?? article.description;
+export function ArticleCard({ article, lang, onRead }: ArticleCardProps) {
+  // 제목은 항상 영문 원제. 본문(요약/설명)만 언어 토글 대상.
+  // 'en': 항상 영문 원문 description.
+  // 'ko': 한국어 요약(summary), null이면 description으로 대체 (요약 대기/실패 정상 케이스).
+  const body = lang === 'en' ? article.description : (article.summary ?? article.description);
 
   const handleOpen = () => {
     // (a) 낙관적 읽음 발사 → (b) 원문 새 탭. 읽음 실패해도 이동은 진행.

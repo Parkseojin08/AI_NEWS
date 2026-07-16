@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { checkHealth } from './api/client';
 import { useArticles } from './hooks/useArticles';
 import { StatusBar } from './components/StatusBar';
@@ -23,6 +23,17 @@ function App() {
     reload,
   } = useArticles();
 
+  // 카드 본문 언어 토글: 제목은 항상 영문 원제, 본문(요약/설명)만 전환.
+  // 초기값은 localStorage 저장값, 없으면 'ko'.
+  const [lang, setLang] = useState<'ko' | 'en'>(() => {
+    const saved = localStorage.getItem('lang');
+    return saved === 'en' || saved === 'ko' ? saved : 'ko';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('lang', lang);
+  }, [lang]);
+
   // 콜드 스타트 웜업: 페이지 로드 즉시 /health 선발사 (실패 무시).
   // 지연 안내 UX(15초 초과 시 "서버 깨우는 중")는 Phase 6에서 마감.
   useEffect(() => {
@@ -46,6 +57,8 @@ function App() {
         unreadCount={unreadCount}
         onSourceChange={setSource}
         onUnreadChange={setUnread}
+        lang={lang}
+        onLangChange={setLang}
       />
 
       {/* 콜드 스타트 안내: 로딩이 15초를 넘기면 노출 (Render 스핀다운 웜업 대기) */}
@@ -72,6 +85,7 @@ function App() {
           <ArticleCard
             key={article.id}
             article={article}
+            lang={lang}
             onRead={markArticleRead}
           />
         ))}

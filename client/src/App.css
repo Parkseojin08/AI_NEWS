@@ -67,7 +67,8 @@
   border-bottom: 1px solid var(--border);
 }
 
-.filterbar__sources {
+.filterbar__sources,
+.filterbar__lang {
   display: inline-flex;
   gap: 6px;
 }
