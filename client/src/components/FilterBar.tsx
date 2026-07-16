@@ -9,7 +9,7 @@ interface FilterBarProps {
   onUnreadChange: (unread: boolean) => void;
   onLangChange: (lang: 'ko' | 'en') => void;
   onInstall?: () => void;
-  canInstall?: boolean;
+  showInstall?: boolean;
 }
 
 const SOURCE_OPTIONS: { value: Source | 'all'; label: string }[] = [
@@ -32,7 +32,7 @@ export function FilterBar({
   onUnreadChange,
   onLangChange,
   onInstall,
-  canInstall,
+  showInstall,
 }: FilterBarProps) {
   return (
     <div className="filterbar">
@@ -73,10 +73,10 @@ export function FilterBar({
         ))}
       </div>
 
-      {canInstall && (
+      {showInstall && (
         <button
           type="button"
-          className="filter-btn"
+          className="filter-btn filter-btn--install"
           onClick={onInstall}
         >
           APP Download

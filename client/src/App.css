@@ -280,3 +280,26 @@
   cursor: pointer;
   font-size: 14px;
 }
+
+/* PWA 설치 버튼 강조 */
+.filter-btn--install {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--text-h);
+}
+
+/* PWA 설치 방법 안내 (네이티브 프롬프트 미지원 브라우저용) */
+.app__install-help {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.app__install-help strong {
+  color: var(--text-h);
+}

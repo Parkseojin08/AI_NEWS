@@ -13,29 +13,41 @@ function App() {
   }, []);
 
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled, setIsInstalled] = useState(
+    () => window.matchMedia('(display-mode: standalone)').matches,
+  );
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
 
   useEffect(() => {
-    const handler = (e: BeforeInstallPromptEvent) => {
+    const onPrompt = (e: BeforeInstallPromptEvent) => {
       // 브라우저 기본 미니 인포바를 막고, 우리 버튼으로 설치를 유도
       e.preventDefault();
       setInstallPrompt(e);
     };
-
-    window.addEventListener('beforeinstallprompt', handler);
-
+    const onInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+      setShowInstallHelp(false);
+    };
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
     return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
     };
   }, []);
 
   const installPWA = async () => {
-    if (!installPrompt) return;
-
-    await installPrompt.prompt();
-    await installPrompt.userChoice;
-
-    // prompt는 1회용 — 사용 후 버튼 숨김
-    setInstallPrompt(null);
+    // Chrome/Edge: 네이티브 설치 프롬프트가 준비된 경우 바로 띄운다
+    if (installPrompt) {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      if (choice.outcome === 'accepted') setIsInstalled(true);
+      return;
+    }
+    // Safari/iPhone·Firefox 등 네이티브 프롬프트가 없는 경우: 설치 방법 안내 토글
+    setShowInstallHelp((v) => !v);
   };
 
   const {
@@ -87,8 +99,16 @@ function App() {
         lang={lang}
         onLangChange={setLang}
         onInstall={installPWA}
-        canInstall={!!installPrompt}
+        showInstall={!isInstalled}
       />
+
+      {showInstallHelp && (
+        <p className="app__install-help">
+          설치 방법 — <strong>Chrome/Edge(PC)</strong>: 주소창 오른쪽 설치 아이콘 또는 ⋮ 메뉴 →
+          &ldquo;앱 설치&rdquo;. <strong>Android Chrome</strong>: ⋮ 메뉴 → &ldquo;앱 설치/홈 화면에 추가&rdquo;.
+          <strong> iPhone(Safari)</strong>: 공유 버튼 → &ldquo;홈 화면에 추가&rdquo;.
+        </p>
+      )}
 
       {loading && slowLoading && (
         <div className="app__waking" role="status" aria-live="polite">
