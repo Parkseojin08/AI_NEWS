@@ -64,7 +64,7 @@ tags:
 ## 사전 완료 사항
 
 - [x] Render 배포 (`https://ai-news-03ub.onrender.com`) — 서버 URL 확보
-- [x] Vercel 프로젝트 (`https://ainews-hub.vercel.app`) — 프로덕션 도메인 확보
+- [x] Vercel 프로젝트 (`https://psj-ai-news-hub.vercel.app`) — 프로덕션 도메인 확보
 - [x] Neon DB 생성 + 스키마 적용 (`articles`, `collect_log`)
 - [x] Render 환경 변수 5종 등록
 - [x] GitHub Secrets (`CRON_SECRET`, `API_BASE_URL`) 등록
@@ -238,7 +238,7 @@ tags:
 | 웜업 | 페이지 로드 시 `/health` 요청 발생 확인 (네트워크 탭) |
 | 지연 안내 | 응답 15초 지연 시뮬레이션 → "서버 깨우는 중" 노출 |
 | 반응형 | 뷰포트 축소 시 1열 전환 |
-| 배포 검증 | Vercel 프로덕션(`https://ainews-hub.vercel.app`)에서 실데이터 렌더링 |
+| 배포 검증 | Vercel 프로덕션(`https://psj-ai-news-hub.vercel.app`)에서 실데이터 렌더링 |
 
 ---
 
