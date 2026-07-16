@@ -12,10 +12,11 @@ function App() {
     registerSW({ immediate: true });
   }, []);
 
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e: BeforeInstallPromptEvent) => {
+      // 브라우저 기본 미니 인포바를 막고, 우리 버튼으로 설치를 유도
       e.preventDefault();
       setInstallPrompt(e);
     };
@@ -30,10 +31,10 @@ function App() {
   const installPWA = async () => {
     if (!installPrompt) return;
 
-    installPrompt.prompt();
-
+    await installPrompt.prompt();
     await installPrompt.userChoice;
 
+    // prompt는 1회용 — 사용 후 버튼 숨김
     setInstallPrompt(null);
   };
 

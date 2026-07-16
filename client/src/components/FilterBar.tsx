@@ -79,7 +79,7 @@ export function FilterBar({
           className="filter-btn"
           onClick={onInstall}
         >
-          📱 앱 설치
+          APP Download
         </button>
       )}
 
