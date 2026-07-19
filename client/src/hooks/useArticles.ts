@@ -2,7 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { getArticles, markRead } from '../api/client';
 import type { Article, Source } from '../api/client';
 
-const PAGE_SIZE = 20;
+// 페이지당 개수: 한 화면에 들어와 세로 스크롤이 거의 없도록 작게 유지 (2열 × 3줄).
+const PAGE_SIZE = 6;
 // 콜드 스타트 안내 임계값: 로딩이 이 시간을 넘기면 "서버 깨우는 중" 안내를 띄운다.
 const SLOW_LOADING_MS = 15000;
 
