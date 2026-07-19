@@ -312,12 +312,6 @@
   padding: 28px 0;
 }
 
-.app__more {
-  text-align: center;
-  padding-top: 24px;
-}
-
-.app__more button,
 .app__error button {
   padding: 9px 22px;
   border: 1px solid var(--accent-border);
@@ -331,10 +325,58 @@
     border-color 0.15s ease;
 }
 
-.app__more button:hover,
 .app__error button:hover {
   background: var(--surface-hover);
   border-color: var(--accent);
+}
+
+/* ── 번호형 페이지네이션 ── */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding-top: 28px;
+}
+
+.pagination__btn {
+  min-width: 38px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.pagination__btn:hover:not(:disabled) {
+  border-color: var(--accent-border);
+  color: var(--text-h);
+}
+
+.pagination__btn--active {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.pagination__ellipsis {
+  padding: 0 4px;
+  color: var(--text);
+  user-select: none;
 }
 
 /* ── PWA 설치 방법 안내 (네이티브 프롬프트 미지원 브라우저용) ── */

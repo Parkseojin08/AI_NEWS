@@ -4,6 +4,7 @@ import { useArticles } from './hooks/useArticles';
 import { StatusBar } from './components/StatusBar';
 import { FilterBar } from './components/FilterBar';
 import { ArticleCard } from './components/ArticleCard';
+import { Pagination } from './components/Pagination';
 import './App.css';
 import { registerSW } from 'virtual:pwa-register';
 
@@ -55,16 +56,23 @@ function App() {
     source,
     unread,
     unreadCount,
-    hasMore,
+    page,
+    totalPages,
     loading,
     slowLoading,
     error,
     setSource,
     setUnread,
-    loadMore,
+    goToPage,
     markArticleRead,
     reload,
   } = useArticles();
+
+  // 페이지 이동 시 목록 맨 위로 스크롤 (아래 페이지 버튼에서 눌러도 위부터 보이게)
+  const handlePageChange = (next: number) => {
+    goToPage(next);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const [lang, setLang] = useState<'ko' | 'en'>(() => {
     const saved = localStorage.getItem('lang');
@@ -141,12 +149,12 @@ function App() {
 
       {loading && <p className="app__loading">불러오는 중...</p>}
 
-      {hasMore && !loading && (
-        <div className="app__more">
-          <button type="button" onClick={loadMore}>
-            더 보기
-          </button>
-        </div>
+      {!loading && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       )}
     </div>
   );

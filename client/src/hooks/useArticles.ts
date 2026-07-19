@@ -13,13 +13,12 @@ export interface UseArticlesResult {
   unreadCount: number;
   page: number;
   totalPages: number;
-  hasMore: boolean;
   loading: boolean;
   slowLoading: boolean;
   error: string | null;
   setSource: (source: Source | 'all') => void;
   setUnread: (unread: boolean) => void;
-  loadMore: () => void;
+  goToPage: (page: number) => void;
   markArticleRead: (id: number) => void;
   reload: () => void;
 }
@@ -57,9 +56,8 @@ export function useArticles(): UseArticlesResult {
           limit: PAGE_SIZE,
         });
         if (myId !== requestId.current) return; // 더 최신 요청이 있으면 폐기
-        setArticles((prev) =>
-          nextPage === 1 ? res.items : [...prev, ...res.items],
-        );
+        // 번호형 페이지네이션: 이어붙이지 않고 해당 페이지로 교체
+        setArticles(res.items);
         setPage(res.page);
         setTotalPages(res.totalPages);
         setUnreadCount(res.unreadCount);
@@ -91,11 +89,16 @@ export function useArticles(): UseArticlesResult {
     setUnreadState(next);
   }, []);
 
-  const loadMore = useCallback(() => {
-    if (loading) return;
-    if (page >= totalPages) return;
-    fetchPage(page + 1, source, unread);
-  }, [loading, page, totalPages, source, unread, fetchPage]);
+  const goToPage = useCallback(
+    (next: number) => {
+      if (loading) return;
+      // 범위 밖/현재 페이지면 무시
+      const target = Math.min(Math.max(1, next), Math.max(1, totalPages));
+      if (target === page) return;
+      fetchPage(target, source, unread);
+    },
+    [loading, page, totalPages, source, unread, fetchPage],
+  );
 
   const reload = useCallback(() => {
     fetchPage(1, source, unread);
@@ -123,8 +126,6 @@ export function useArticles(): UseArticlesResult {
     [],
   );
 
-  const hasMore = page < totalPages;
-
   return {
     articles,
     source,
@@ -132,13 +133,12 @@ export function useArticles(): UseArticlesResult {
     unreadCount,
     page,
     totalPages,
-    hasMore,
     loading,
     slowLoading,
     error,
     setSource,
     setUnread,
-    loadMore,
+    goToPage,
     markArticleRead,
     reload,
   };
